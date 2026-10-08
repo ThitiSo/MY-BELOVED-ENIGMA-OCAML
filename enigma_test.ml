@@ -26,6 +26,10 @@ let map_l_to_r_test name wiring top_letter input expected =
 let map_refl_test name wiring input expected =
   name >:: fun _ ->
     assert_equal expected (map_refl wiring input)
+
+let map_plug_test name plugboard input expected =
+  name >:: fun _ ->
+    assert_equal expected (map_plug plugboard input)
 let suite =
   "Enigma test suite" >::: [
     (* index *)
@@ -93,6 +97,24 @@ let suite =
 
     map_refl_test "reflector B maps 24 to 0"
       reflector_B 24 0;
+
+
+    (* Plugboard *)
+
+    map_plug_test "empty plugboard leaves A unchanged"
+      [] 'A' 'A';
+
+    map_plug_test "AZ maps A to Z"
+      [('A', 'Z')] 'A' 'Z';
+
+    map_plug_test "AZ maps Z to A"
+      [('A', 'Z')] 'Z' 'A';
+
+    map_plug_test "multiple pairs map X to Y"
+      [('A', 'Z'); ('X', 'Y')] 'X' 'Y';
+
+    map_plug_test "unconnected letter stays unchanged"
+      [('A', 'Z'); ('X', 'Y')] 'M' 'M';
     
   ]
 

@@ -40,8 +40,13 @@ let map_refl wiring input_pos =
   let reflected_char = String.get wiring input_pos in
   index reflected_char
 
-let map_plug _plugs _c =
-  failwith "Unimplemented"
+let rec map_plug plugboard c =
+  match plugboard with
+  | [] -> c
+  | (a, b) :: rest ->
+      if c = a then b
+      else if c = b then a
+      else map_plug rest c
 
 let cipher_char _config _c =
   failwith "Unimplemented"
