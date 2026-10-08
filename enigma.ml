@@ -36,8 +36,9 @@ let map_l_to_r wiring top_letter input_pos =
   let wired_pos = find_pos 0 in
   (wired_pos - offset + 26) mod 26
 
-let map_refl _wiring _input_pos =
-  failwith "Unimplemented"
+let map_refl wiring input_pos =
+  let reflected_char = String.get wiring input_pos in
+  index reflected_char
 
 let map_plug _plugs _c =
   failwith "Unimplemented"

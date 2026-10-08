@@ -8,6 +8,9 @@ let rotor_III =
 
 let identity =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+let reflector_B =
+  "YRUHQSLDPXNGOKMIEBFZCWVJAT"
 let index_test name input expected =
   name >:: fun _ ->
     assert_equal expected (index input)
@@ -19,6 +22,10 @@ let map_r_to_l_test name wiring top_letter input expected =
 let map_l_to_r_test name wiring top_letter input expected =
   name >:: fun _ ->
     assert_equal expected (map_l_to_r wiring top_letter input)
+
+let map_refl_test name wiring input expected =
+  name >:: fun _ ->
+    assert_equal expected (map_refl wiring input)
 let suite =
   "Enigma test suite" >::: [
     (* index *)
@@ -71,7 +78,21 @@ let suite =
       "l to r rotor I A 4"
       rotor_I 'A' 4 0;
 
+    (* Reflector*)
+    map_refl_test "identity reflector maps 0 to 0"
+      identity 0 0;
 
+    map_refl_test "identity reflector maps 1 to 1"
+      identity 1 1;
+
+    map_refl_test "identity reflector maps 25 to 25"
+      identity 25 25;
+
+    map_refl_test "reflector B maps 0 to 24"
+      reflector_B 0 24;
+
+    map_refl_test "reflector B maps 24 to 0"
+      reflector_B 24 0;
     
   ]
 
