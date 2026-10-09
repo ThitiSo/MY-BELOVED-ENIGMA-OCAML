@@ -36,6 +36,38 @@ let historical_config = {
   ];
   plugboard = [];
 }
+
+
+let rotor_I_record =
+  {
+    wiring = rotor_I;
+    turnover = 'Q';
+  }
+
+let rotor_II_record =
+  {
+    wiring = "AJDKSIRUXBLHWTMCQGZNPYFVOE";
+    turnover = 'E';
+  }
+
+let rotor_III_record =
+  {
+    wiring = rotor_III;
+    turnover = 'V';
+  }
+
+let step_config a b c =
+  {
+    refl = reflector_B;
+    rotors = [
+      { rotor = rotor_III_record; top_letter = a };
+      { rotor = rotor_II_record; top_letter = b };
+      { rotor = rotor_I_record; top_letter = c };
+    ];
+    plugboard = [];
+  }
+
+  
 let index_test name input expected =
   name >:: fun _ ->
     assert_equal expected (index input)
@@ -59,6 +91,14 @@ let map_plug_test name plugboard input expected =
 let cipher_char_test name config input expected =
   name >:: fun _ ->
     assert_equal expected (cipher_char config input)
+
+let step_test name config expected =
+  name >:: fun _ ->
+    let stepped = step config in
+    let positions =
+      List.map (fun r -> r.top_letter) stepped.rotors
+    in
+    assert_equal expected positions
 let suite =
   "Enigma test suite" >::: [
     (* index *)
@@ -161,6 +201,29 @@ let suite =
 
     cipher_char_test "historical config maps A to U"
       historical_config 'A' 'U';
+
+
+    (* step *)
+
+    step_test "KDO steps to KDP"
+      (step_config 'K' 'D' 'O')
+      ['K'; 'D'; 'P'];
+
+    step_test "KDP steps to KDQ"
+      (step_config 'K' 'D' 'P')
+      ['K'; 'D'; 'Q'];
+
+    step_test "KDQ turnover steps to KER"
+      (step_config 'K' 'D' 'Q')
+      ['K'; 'E'; 'R'];
+
+    step_test "KER double stepping gives LFS"
+      (step_config 'K' 'E' 'R')
+      ['L'; 'F'; 'S'];
+
+    step_test "VDQ turnover steps to VER"
+      (step_config 'V' 'D' 'Q')
+      ['V'; 'E'; 'R'];
   ]
 
 let () = run_test_tt_main suite
