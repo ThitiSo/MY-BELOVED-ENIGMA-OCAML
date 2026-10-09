@@ -67,6 +67,23 @@ let step_config a b c =
     plugboard = [];
   }
 
+let full_config =
+  {
+    refl = reflector_B;
+    rotors = [
+      { rotor = rotor_I_record; top_letter = 'F' };
+      { rotor = rotor_II_record; top_letter = 'U' };
+      { rotor = rotor_III_record; top_letter = 'N' };
+    ];
+    plugboard = [('A', 'Z')];
+  }
+
+let cipher_identity_config =
+  {
+    refl = identity;
+    rotors = [];
+    plugboard = [];
+  }
   
 let index_test name input expected =
   name >:: fun _ ->
@@ -99,6 +116,11 @@ let step_test name config expected =
       List.map (fun r -> r.top_letter) stepped.rotors
     in
     assert_equal expected positions
+
+
+let cipher_test name config input expected =
+  name >:: fun _ ->
+    assert_equal expected (cipher config input)
 let suite =
   "Enigma test suite" >::: [
     (* index *)
@@ -224,6 +246,23 @@ let suite =
     step_test "VDQ turnover steps to VER"
       (step_config 'V' 'D' 'Q')
       ['V'; 'E'; 'R'];
+
+        (* cipher *)
+
+    cipher_test "empty string stays empty"
+      cipher_identity_config "" "";
+
+    cipher_test "identity machine maps A to A"
+      cipher_identity_config "A" "A";
+
+    cipher_test "identity machine maps ABC to ABC"
+      cipher_identity_config "ABC" "ABC";
+
+    cipher_test "identity machine maps HELLO to HELLO"
+      cipher_identity_config "HELLO" "HELLO";
+
+    cipher_test "full Enigma test YNGXQ becomes OCAML"
+      full_config "YNGXQ" "OCAML";
   ]
 
 let () = run_test_tt_main suite
