@@ -11,6 +11,31 @@ let identity =
 
 let reflector_B =
   "YRUHQSLDPXNGOKMIEBFZCWVJAT"
+
+let rotor_I_record =
+  { wiring = rotor_I; turnover = 'Q' }
+
+let rotor_II_record =
+  { wiring = "AJDKSIRUXBLHWTMCQGZNPYFVOE"; turnover = 'E' }
+
+let rotor_III_record =
+  { wiring = rotor_III; turnover = 'V' }
+
+let identity_config = {
+  refl = identity;
+  rotors = [];
+  plugboard = [];
+}
+
+let historical_config = {
+  refl = reflector_B;
+  rotors = [
+    { rotor = rotor_I_record; top_letter = 'A' };
+    { rotor = rotor_II_record; top_letter = 'A' };
+    { rotor = rotor_III_record; top_letter = 'A' }
+  ];
+  plugboard = [];
+}
 let index_test name input expected =
   name >:: fun _ ->
     assert_equal expected (index input)
@@ -30,6 +55,10 @@ let map_refl_test name wiring input expected =
 let map_plug_test name plugboard input expected =
   name >:: fun _ ->
     assert_equal expected (map_plug plugboard input)
+
+let cipher_char_test name config input expected =
+  name >:: fun _ ->
+    assert_equal expected (cipher_char config input)
 let suite =
   "Enigma test suite" >::: [
     (* index *)
@@ -116,6 +145,22 @@ let suite =
     map_plug_test "unconnected letter stays unchanged"
       [('A', 'Z'); ('X', 'Y')] 'M' 'M';
     
+        (* cipher_char *)
+
+    cipher_char_test "identity cipher maps A to A"
+      identity_config 'A' 'A';
+
+    cipher_char_test "identity cipher maps M to M"
+      identity_config 'M' 'M';
+
+    cipher_char_test "identity cipher maps Z to Z"
+      identity_config 'Z' 'Z';
+
+    cipher_char_test "historical config maps G to P"
+      historical_config 'G' 'P';
+
+    cipher_char_test "historical config maps A to U"
+      historical_config 'A' 'U';
   ]
 
 let () = run_test_tt_main suite

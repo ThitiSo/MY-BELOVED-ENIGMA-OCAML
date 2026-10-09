@@ -48,8 +48,41 @@ let rec map_plug plugboard c =
       else if c = b then a
       else map_plug rest c
 
-let cipher_char _config _c =
-  failwith "Unimplemented"
+let cipher_char config c =
+  let plugged_char = map_plug config.plugboard c in
+  let input_pos = index plugged_char in
+
+  let rec r_to_l rotors pos =
+    match rotors with
+    | [] -> pos
+    | r :: rest ->
+        r_to_l rest (map_r_to_l r.rotor.wiring r.top_letter pos)
+  in
+
+  let rec l_to_r rotors pos =
+    match rotors with
+    | [] -> pos
+    | r :: rest ->
+        l_to_r rest (map_l_to_r r.rotor.wiring r.top_letter pos)
+  in
+
+  let after_rotors =
+    r_to_l (List.rev config.rotors) input_pos
+  in
+
+  let after_reflector =
+    map_refl config.refl after_rotors
+  in
+
+  let after_reverse_rotors =
+    l_to_r config.rotors after_reflector
+  in
+
+  let output_char =
+    Char.chr (after_reverse_rotors + Char.code 'A')
+  in
+
+  map_plug config.plugboard output_char
 
 let step _config =
   failwith "Unimplemented"
