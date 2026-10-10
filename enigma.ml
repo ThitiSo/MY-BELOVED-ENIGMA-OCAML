@@ -137,4 +137,4 @@ let cipher config text =
   in
   aux config 0 ""
 
-let hours_worked = 0
+let hours_worked = 12
