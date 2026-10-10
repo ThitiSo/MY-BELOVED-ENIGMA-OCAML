@@ -1,5 +1,6 @@
 open OUnit2
 open Enigma
+
 let rotor_I =
   "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
 
@@ -11,32 +12,6 @@ let identity =
 
 let reflector_B =
   "YRUHQSLDPXNGOKMIEBFZCWVJAT"
-
-let rotor_I_record =
-  { wiring = rotor_I; turnover = 'Q' }
-
-let rotor_II_record =
-  { wiring = "AJDKSIRUXBLHWTMCQGZNPYFVOE"; turnover = 'E' }
-
-let rotor_III_record =
-  { wiring = rotor_III; turnover = 'V' }
-
-let identity_config = {
-  refl = identity;
-  rotors = [];
-  plugboard = [];
-}
-
-let historical_config = {
-  refl = reflector_B;
-  rotors = [
-    { rotor = rotor_I_record; top_letter = 'A' };
-    { rotor = rotor_II_record; top_letter = 'A' };
-    { rotor = rotor_III_record; top_letter = 'A' }
-  ];
-  plugboard = [];
-}
-
 
 let rotor_I_record =
   {
@@ -56,13 +31,31 @@ let rotor_III_record =
     turnover = 'V';
   }
 
+let identity_config =
+  {
+    refl = identity;
+    rotors = [];
+    plugboard = [];
+  }
+
+let historical_config =
+  {
+    refl = reflector_B;
+    rotors = [
+      { rotor = rotor_I_record; top_letter = 'A' };
+      { rotor = rotor_II_record; top_letter = 'A' };
+      { rotor = rotor_III_record; top_letter = 'A' }
+    ];
+    plugboard = [];
+  }
+
 let step_config a b c =
   {
     refl = reflector_B;
     rotors = [
       { rotor = rotor_III_record; top_letter = a };
       { rotor = rotor_II_record; top_letter = b };
-      { rotor = rotor_I_record; top_letter = c };
+      { rotor = rotor_I_record; top_letter = c }
     ];
     plugboard = [];
   }
@@ -73,7 +66,7 @@ let full_config =
     rotors = [
       { rotor = rotor_I_record; top_letter = 'F' };
       { rotor = rotor_II_record; top_letter = 'U' };
-      { rotor = rotor_III_record; top_letter = 'N' };
+      { rotor = rotor_III_record; top_letter = 'N' }
     ];
     plugboard = [('A', 'Z')];
   }
@@ -84,7 +77,7 @@ let cipher_identity_config =
     rotors = [];
     plugboard = [];
   }
-  
+
 let index_test name input expected =
   name >:: fun _ ->
     assert_equal expected (index input)
@@ -117,20 +110,33 @@ let step_test name config expected =
     in
     assert_equal expected positions
 
-
 let cipher_test name config input expected =
   name >:: fun _ ->
     assert_equal expected (cipher config input)
+
 let suite =
   "Enigma test suite" >::: [
-    (* index *)
-    index_test "index of A is 0" 'A' 0;
-    index_test "index of Z is 25" 'Z' 25;
-    index_test "index of B is 1" 'B' 1;
-    index_test "index of M is 12" 'M' 12;
-    index_test "index of Y is 24" 'Y' 24;
 
-      (* map_r_to_l *)
+    (* index *)
+
+    index_test "index of A is 0"
+      'A' 0;
+
+    index_test "index of Z is 25"
+      'Z' 25;
+
+    index_test "index of B is 1"
+      'B' 1;
+
+    index_test "index of M is 12"
+      'M' 12;
+
+    index_test "index of Y is 24"
+      'Y' 24;
+
+
+    (* map_r_to_l *)
+
     map_r_to_l_test
       "r to l identity A 0"
       identity 'A' 0 0;
@@ -153,6 +159,7 @@ let suite =
 
 
     (* map_l_to_r *)
+
     map_l_to_r_test
       "l to r identity A 0"
       identity 'A' 0 0;
@@ -173,96 +180,236 @@ let suite =
       "l to r rotor I A 4"
       rotor_I 'A' 4 0;
 
-    (* Reflector*)
-    map_refl_test "identity reflector maps 0 to 0"
+
+    (* reflector *)
+
+    map_refl_test
+      "identity reflector maps 0 to 0"
       identity 0 0;
 
-    map_refl_test "identity reflector maps 1 to 1"
+    map_refl_test
+      "identity reflector maps 1 to 1"
       identity 1 1;
 
-    map_refl_test "identity reflector maps 25 to 25"
+    map_refl_test
+      "identity reflector maps 25 to 25"
       identity 25 25;
 
-    map_refl_test "reflector B maps 0 to 24"
+    map_refl_test
+      "reflector B maps 0 to 24"
       reflector_B 0 24;
 
-    map_refl_test "reflector B maps 24 to 0"
+    map_refl_test
+      "reflector B maps 24 to 0"
       reflector_B 24 0;
 
 
-    (* Plugboard *)
+    (* plugboard *)
 
-    map_plug_test "empty plugboard leaves A unchanged"
+    map_plug_test
+      "empty plugboard leaves A unchanged"
       [] 'A' 'A';
 
-    map_plug_test "AZ maps A to Z"
+    map_plug_test
+      "AZ maps A to Z"
       [('A', 'Z')] 'A' 'Z';
 
-    map_plug_test "AZ maps Z to A"
+    map_plug_test
+      "AZ maps Z to A"
       [('A', 'Z')] 'Z' 'A';
 
-    map_plug_test "multiple pairs map X to Y"
+    map_plug_test
+      "multiple pairs map X to Y"
       [('A', 'Z'); ('X', 'Y')] 'X' 'Y';
 
-    map_plug_test "unconnected letter stays unchanged"
+    map_plug_test
+      "unconnected letter stays unchanged"
       [('A', 'Z'); ('X', 'Y')] 'M' 'M';
-    
-        (* cipher_char *)
 
-    cipher_char_test "identity cipher maps A to A"
+
+    (* cipher_char *)
+
+    cipher_char_test
+      "identity cipher maps A to A"
       identity_config 'A' 'A';
 
-    cipher_char_test "identity cipher maps M to M"
+    cipher_char_test
+      "identity cipher maps M to M"
       identity_config 'M' 'M';
 
-    cipher_char_test "identity cipher maps Z to Z"
+    cipher_char_test
+      "identity cipher maps Z to Z"
       identity_config 'Z' 'Z';
 
-    cipher_char_test "historical config maps G to P"
+    cipher_char_test
+      "historical config maps G to P"
       historical_config 'G' 'P';
 
-    cipher_char_test "historical config maps A to U"
+    cipher_char_test
+      "historical config maps A to U"
       historical_config 'A' 'U';
 
 
     (* step *)
 
-    step_test "KDO steps to KDP"
+    step_test
+      "KDO steps to KDP"
       (step_config 'K' 'D' 'O')
       ['K'; 'D'; 'P'];
 
-    step_test "KDP steps to KDQ"
+    step_test
+      "KDP steps to KDQ"
       (step_config 'K' 'D' 'P')
       ['K'; 'D'; 'Q'];
 
-    step_test "KDQ turnover steps to KER"
+    step_test
+      "KDQ turnover steps to KER"
       (step_config 'K' 'D' 'Q')
       ['K'; 'E'; 'R'];
 
-    step_test "KER double stepping gives LFS"
+    step_test
+      "KER double stepping gives LFS"
       (step_config 'K' 'E' 'R')
       ['L'; 'F'; 'S'];
 
-    step_test "VDQ turnover steps to VER"
+    step_test
+      "VDQ turnover steps to VER"
       (step_config 'V' 'D' 'Q')
       ['V'; 'E'; 'R'];
 
-        (* cipher *)
 
-    cipher_test "empty string stays empty"
+    (* cipher *)
+
+    cipher_test
+      "empty string stays empty"
       cipher_identity_config "" "";
 
-    cipher_test "identity machine maps A to A"
+    cipher_test
+      "identity machine maps A to A"
       cipher_identity_config "A" "A";
 
-    cipher_test "identity machine maps ABC to ABC"
+    cipher_test
+      "identity machine maps ABC to ABC"
       cipher_identity_config "ABC" "ABC";
 
-    cipher_test "identity machine maps HELLO to HELLO"
+    cipher_test
+      "identity machine maps HELLO to HELLO"
       cipher_identity_config "HELLO" "HELLO";
 
-    cipher_test "full Enigma test YNGXQ becomes OCAML"
+    cipher_test
+      "full Enigma test YNGXQ becomes OCAML"
       full_config "YNGXQ" "OCAML";
+
+
+        (* mixed / integration tests *)
+
+    "rotor forward then backward returns original position" >:: (fun _ ->
+      let input = 7 in
+      let after_forward =
+        map_r_to_l rotor_I 'C' input
+      in
+      let after_backward =
+        map_l_to_r rotor_I 'C' after_forward
+      in
+      assert_equal input after_backward
+    );
+
+    "plugboard and identity reflector return original character" >:: (fun _ ->
+      let plugboard = [('A', 'Z')] in
+      let after_first_plug =
+        map_plug plugboard 'A'
+      in
+      let input_pos =
+        index after_first_plug
+      in
+      let reflected_pos =
+        map_refl identity input_pos
+      in
+      let reflected_char =
+        Char.chr (reflected_pos + Char.code 'A')
+      in
+      let result =
+        map_plug plugboard reflected_char
+      in
+      assert_equal 'A' result
+    );
+
+    "step then cipher_char matches cipher for one character" >:: (fun _ ->
+      let stepped_config =
+        step full_config
+      in
+      let expected_char =
+        cipher_char stepped_config 'Y'
+      in
+      let actual =
+        cipher full_config "Y"
+      in
+      assert_equal
+        (String.make 1 expected_char)
+        actual
+    );
+
+    "manual rotor path matches cipher_char" >:: (fun _ ->
+      let input = 'G' in
+      let input_pos = index input in
+
+      let after_r3 =
+        map_r_to_l rotor_III 'A' input_pos
+      in
+
+      let after_r2 =
+        map_r_to_l rotor_II_record.wiring 'A' after_r3
+      in
+
+      let after_r1 =
+        map_r_to_l rotor_I 'A' after_r2
+      in
+
+      let after_refl =
+        map_refl reflector_B after_r1
+      in
+
+      let back_r1 =
+        map_l_to_r rotor_I 'A' after_refl
+      in
+
+      let back_r2 =
+        map_l_to_r rotor_II_record.wiring 'A' back_r1
+      in
+
+      let back_r3 =
+        map_l_to_r rotor_III 'A' back_r2
+      in
+
+      let expected =
+        Char.chr (back_r3 + Char.code 'A')
+      in
+
+      let actual =
+        cipher_char historical_config input
+      in
+
+      assert_equal expected actual
+    );
+
+    "cipher two characters equals manual step and cipher twice" >:: (fun _ ->
+      let config1 = step full_config in
+      let c1 = cipher_char config1 'Y' in
+
+      let config2 = step config1 in
+      let c2 = cipher_char config2 'N' in
+
+      let expected =
+        String.make 1 c1 ^ String.make 1 c2
+      in
+
+      let actual =
+        cipher full_config "YN"
+      in
+
+      assert_equal expected actual
+    );
   ]
 
-let () = run_test_tt_main suite
+let () =
+  run_test_tt_main suite
